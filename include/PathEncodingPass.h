@@ -13,28 +13,29 @@
 namespace pathprofiling {
 
 
-struct PathEncodingPass : public llvm::ModulePass {
-  using Edge = std::pair<llvm::BasicBlock*, llvm::BasicBlock*>;
+    struct PathEncodingPass : public llvm::ModulePass {
+        using Edge = std::pair<llvm::BasicBlock *, llvm::BasicBlock *>;
 
-  static char ID;
+        static char ID;
 
-  llvm::DenseMap<llvm::BasicBlock*, uint64_t> numPaths;
-  llvm::DenseMap<Edge, uint64_t> edges;
+        llvm::DenseMap<llvm::BasicBlock *, uint64_t> numPaths;
+        llvm::DenseMap<Edge, uint64_t> edges;
 
-  PathEncodingPass()
-    : llvm::ModulePass(ID)
-      { }
+        PathEncodingPass()
+                : llvm::ModulePass(ID) {}
 
-  void
-  getAnalysisUsage(llvm::AnalysisUsage& au) const override {
-    au.addRequired<llvm::LoopInfoWrapperPass>();
-    au.setPreservesAll();
-  }
+        void
+        getAnalysisUsage(llvm::AnalysisUsage &au) const override {
+            au.addRequired<llvm::LoopInfoWrapperPass>();
+            au.setPreservesAll();
+        }
 
-  bool runOnModule(llvm::Module& m) override;
+        bool runOnModule(llvm::Module &m) override;
 
-  void encode(llvm::Function& function);
-};
+        void encode(llvm::Function &function);
+
+        void debugPrint(llvm::Module &module);
+    };
 
 
 }  // namespace pathprofiling

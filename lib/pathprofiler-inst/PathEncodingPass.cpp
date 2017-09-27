@@ -11,25 +11,96 @@
 
 #include <algorithm>
 #include <vector>
-
+#include <deque>
+#include <iostream>
 
 using namespace llvm;
 using namespace pathprofiling;
 
 
 namespace pathprofiling {
-  char PathEncodingPass::ID = 0;
+    char PathEncodingPass::ID = 0;
 }
 
+void PathEncodingPass::debugPrint(Module &module) {
+    DenseMap<BasicBlock *, uint64_t> bbid;
+    for (auto &fn:module) {
+        std::cout << "==================\n"
+                  << "function: " << fn.getName().str() << std::endl
+                  << "==================\n";
+        uint64_t id = 0;
+        for (auto &bb: fn) {
+            bbid[&bb] = id;
+            id++;
+        }
+
+        printf("digraph {\n");
+        for (auto &bb:fn) {
+            for (auto it = succ_begin(&bb), et = succ_end(&bb); it != et; ++it) {
+                auto succ = *it;
+                auto label = edges[Edge(&bb, succ)];
+                printf("\"%lu\" -> \"%lu\" [label=%lu]\n",
+                       bbid[&bb], bbid[succ], label);
+            }
+        }
+        printf("}\n");
+    }
+}
 
 bool
-PathEncodingPass::runOnModule(Module& module) {
-  // Add your solution here.
-  return false;
+PathEncodingPass::runOnModule(Module &module) {
+    // Add your solution here.
+    for (auto &fn:module) {
+        if (!fn.getName().startswith(StringLiteral("llvm.debug"))) {
+            encode(fn);
+        }
+    }
+    debugPrint(module);
+    return false;
 }
 
 
 void
-PathEncodingPass::encode(llvm::Function& function) {
-  // You may want to write this function as part of your solution
+PathEncodingPass::encode(llvm::Function &function) {
+    // You may want to write this function as part of your solution
+    std::deque<BasicBlock *> worklist;
+    DenseSet<BasicBlock *> visited;
+    for (auto &bb:function) {
+        for (auto &i:bb) {
+            auto result = dyn_cast<CallInst>(&i);
+            if (result) {
+                worklist.push_back(&bb);
+                numPaths[&bb] = 1;
+                visited.insert(&bb);
+                break;
+            }
+        }
+    }
+    //DFS
+    while (!worklist.empty()) {
+        auto bb = worklist.back();
+        worklist.pop_back();
+        for (auto it = pred_begin(bb), et = pred_end(bb); it != et; ++it) {
+            auto pred = *it;
+            if (visited.count(pred)) {
+                //cross edge
+                numPaths[pred] += numPaths[bb];
+            }
+            else {
+                //discovery edge
+                numPaths[pred] = numPaths[bb];
+                visited.insert(pred);
+                worklist.push_back(pred);
+            }
+        }
+    }
+
+    for (auto &bb:function) {
+        uint64_t encoding = 0;
+        for (auto it = succ_begin(&bb), et = succ_end(&bb); it != et; ++it) {
+            auto succ = *it;
+            edges[Edge(&bb, succ)] = encoding;
+            encoding += numPaths[succ];
+        }
+    }
 }
