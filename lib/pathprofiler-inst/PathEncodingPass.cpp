@@ -22,9 +22,10 @@ namespace pathprofiling {
     char PathEncodingPass::ID = 0;
 }
 
-void PathEncodingPass::debugPrint(Module &module) {
+void PathEncodingPass::debugPrint() {
     DenseMap<BasicBlock *, uint64_t> bbid;
-    for (auto &fn:module) {
+    for (auto fnptr:toInstr) {
+        auto &fn = *fnptr;
         std::cout << "==================\n"
                   << "function: " << fn.getName().str() << std::endl
                   << "==================\n";
@@ -51,20 +52,31 @@ bool
 PathEncodingPass::runOnModule(Module &module) {
     // Add your solution here.
     for (auto &fn:module) {
-        if (!fn.getName().startswith(StringLiteral("llvm.debug"))) {
-            encode(fn);
+        if (!fn.isDeclaration()) {
+            if (encode(fn)) {
+                toInstr.insert(&fn);
+            }
         }
     }
-    debugPrint(module);
+    debugPrint();
     return false;
 }
 
 
-void
+bool
 PathEncodingPass::encode(llvm::Function &function) {
     // You may want to write this function as part of your solution
     std::deque<BasicBlock *> worklist;
     DenseSet<BasicBlock *> visited;
+
+    for (auto &bb:function) {
+        LoopInfo &LI = getAnalysis<LoopInfoWrapperPass>(function).getLoopInfo();
+        auto isLoop = LI.getLoopFor(&bb);
+        if (isLoop) {
+            return false;
+        }
+    }
+
     for (auto &bb:function) {
         for (auto &i:bb) {
             auto result = dyn_cast<CallInst>(&i);
@@ -103,4 +115,5 @@ PathEncodingPass::encode(llvm::Function &function) {
             encoding += numPaths[succ];
         }
     }
+    return true;
 }

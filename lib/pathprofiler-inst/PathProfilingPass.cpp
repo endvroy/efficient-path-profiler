@@ -19,21 +19,23 @@ using namespace pathprofiling;
 
 
 namespace pathprofiling {
-char PathProfilingPass::ID = 0;
+    char PathProfilingPass::ID = 0;
 }
 
 
 bool
 PathProfilingPass::runOnModule(llvm::Module &module) {
-  // Implement your solution here.
-  return true;
+    // Implement your solution here.
+    auto &ep = getAnalysis<PathEncodingPass>();
+//    ep.debugPrint();
+    return true;
 }
 
 
 void
-PathProfilingPass::instrument(llvm::Module& module,
-                              llvm::Function& function,
+PathProfilingPass::instrument(llvm::Module &module,
+                              llvm::Function &function,
                               uint64_t functionID) {
-  // You may want to implement this function as a part of your solution.
+    // You may want to implement this function as a part of your solution.
 }
 

@@ -20,6 +20,7 @@ namespace pathprofiling {
 
         llvm::DenseMap<llvm::BasicBlock *, uint64_t> numPaths;
         llvm::DenseMap<Edge, uint64_t> edges;
+        llvm::DenseSet<llvm::Function *> toInstr;
 
         PathEncodingPass()
                 : llvm::ModulePass(ID) {}
@@ -32,9 +33,9 @@ namespace pathprofiling {
 
         bool runOnModule(llvm::Module &m) override;
 
-        void encode(llvm::Function &function);
+        bool encode(llvm::Function &function);
 
-        void debugPrint(llvm::Module &module);
+        void debugPrint();
     };
 
 
