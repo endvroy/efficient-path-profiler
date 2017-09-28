@@ -54,14 +54,22 @@ PathEncodingPass::runOnModule(Module &module) {
     for (auto &fn:module) {
         if (!fn.isDeclaration()) {
             if (encode(fn)) {
-                toInstr.insert(&fn);
+                toInstr.push_back(&fn);
             }
         }
     }
+    calcFnId();
     debugPrint();
     return false;
 }
 
+void PathEncodingPass::calcFnId() {
+    uint64_t i = 0;
+    for (auto fn:toInstr) {
+        fnId[fn] = i;
+        i++;
+    }
+}
 
 bool
 PathEncodingPass::encode(llvm::Function &function) {

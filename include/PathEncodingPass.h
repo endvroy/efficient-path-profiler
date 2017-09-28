@@ -9,6 +9,7 @@
 #include "llvm/IR/Module.h"
 #include "llvm/Pass.h"
 
+#include <vector>
 
 namespace pathprofiling {
 
@@ -20,7 +21,8 @@ namespace pathprofiling {
 
         llvm::DenseMap<llvm::BasicBlock *, uint64_t> numPaths;
         llvm::DenseMap<Edge, uint64_t> edges;
-        llvm::DenseSet<llvm::Function *> toInstr;
+        std::vector<llvm::Function *> toInstr;
+        llvm::DenseMap<llvm::Function *, uint64_t> fnId;
 
         PathEncodingPass()
                 : llvm::ModulePass(ID) {}
@@ -34,6 +36,8 @@ namespace pathprofiling {
         bool runOnModule(llvm::Module &m) override;
 
         bool encode(llvm::Function &function);
+
+        void calcFnId();
 
         void debugPrint();
     };
