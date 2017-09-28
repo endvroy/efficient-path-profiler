@@ -39,7 +39,7 @@ void PathEncodingPass::debugPrint() {
         for (auto &bb:fn) {
             for (auto it = succ_begin(&bb), et = succ_end(&bb); it != et; ++it) {
                 auto succ = *it;
-                auto label = edges[Edge(&bb, succ)];
+                auto label = fnEdgeMap[&fn][Edge(&bb, succ)];
                 printf("\"%lu\" -> \"%lu\" [label=%lu]\n",
                        bbid[&bb], bbid[succ], label);
             }
@@ -119,7 +119,7 @@ PathEncodingPass::encode(llvm::Function &function) {
         uint64_t encoding = 0;
         for (auto it = succ_begin(&bb), et = succ_end(&bb); it != et; ++it) {
             auto succ = *it;
-            edges[Edge(&bb, succ)] = encoding;
+            fnEdgeMap[&function][Edge(&bb, succ)] = encoding;
             encoding += numPaths[succ];
         }
     }

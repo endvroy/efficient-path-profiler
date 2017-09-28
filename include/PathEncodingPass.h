@@ -16,11 +16,12 @@ namespace pathprofiling {
 
     struct PathEncodingPass : public llvm::ModulePass {
         using Edge = std::pair<llvm::BasicBlock *, llvm::BasicBlock *>;
+        using EdgeMap = llvm::DenseMap<Edge, uint64_t>;
 
         static char ID;
 
         llvm::DenseMap<llvm::BasicBlock *, uint64_t> numPaths;
-        llvm::DenseMap<Edge, uint64_t> edges;
+        llvm::DenseMap<llvm::Function *, EdgeMap> fnEdgeMap;
         std::vector<llvm::Function *> toInstr;
         llvm::DenseMap<llvm::Function *, uint64_t> fnId;
 
