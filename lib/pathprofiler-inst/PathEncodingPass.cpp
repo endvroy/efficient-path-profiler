@@ -86,14 +86,14 @@ PathEncodingPass::encode(llvm::Function &function) {
     }
 
     for (auto &bb:function) {
-        auto it = bb.end();
-        it--;
-        auto &i = *it;
-        auto result = dyn_cast<CallInst>(&i);
-        if (result) {
-            worklist.push_back(&bb);
-            numPaths[&bb] = 1;
-            visited.insert(&bb);
+        for (auto &i:bb) {
+            auto result = dyn_cast<CallInst>(&i);
+            if (result) {
+                worklist.push_back(&bb);
+                numPaths[&bb] = 1;
+                visited.insert(&bb);
+                break;
+            }
         }
     }
     //DFS
