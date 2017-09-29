@@ -36,17 +36,19 @@ void PathEncodingPass::debugPrint() {
         }
 
         printf("digraph {\n");
-        for (auto &bb:fn) {
-            for (auto it = succ_begin(&bb), et = succ_end(&bb); it != et; ++it) {
-                auto succ = *it;
-                auto label = fnEdgeMap[&fn][Edge(&bb, succ)];
-                printf("\"%lu\" -> \"%lu\" [label=%lu]\n",
-                       bbid[&bb], bbid[succ], label);
-            }
+        auto allEdges = fnEdgeMap[&fn];
+        for (auto p:allEdges) {
+            auto &edge = p.first;
+            auto label = p.second;
+            auto pred = edge.first;
+            auto succ = edge.second;
+            printf("\"%lu\" -> \"%lu\" [label=%lu]\n",
+                   bbid[pred], bbid[succ], label);
         }
-        printf("}\n");
     }
+    printf("}\n");
 }
+
 
 bool
 PathEncodingPass::runOnModule(Module &module) {
