@@ -88,20 +88,19 @@ PathEncodingPass::encode(llvm::Function &function) {
     }
 
     for (auto &bb:function) {
-        for (auto &i:bb) {
-            auto result = dyn_cast<CallInst>(&i);
-            if (result) {
-                worklist.push_back(&bb);
-                numPaths[&bb] = 1;
-                visited.insert(&bb);
-                break;
-            }
+        auto i = bb.getTerminator();
+        auto result = dyn_cast<ReturnInst>(i);
+        if (result) {
+            worklist.push_back(&bb);
+            numPaths[&bb] = 1;
+            visited.insert(&bb);
         }
     }
-    //DFS
+
+    //BFS
     while (!worklist.empty()) {
-        auto bb = worklist.back();
-        worklist.pop_back();
+        auto bb = worklist.front();
+        worklist.pop_front();
         for (auto it = pred_begin(bb), et = pred_end(bb); it != et; ++it) {
             auto pred = *it;
             if (visited.count(pred)) {
