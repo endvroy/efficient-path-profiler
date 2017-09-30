@@ -29,7 +29,7 @@ struct PathProfilingPass : public llvm::ModulePass {
 
   bool runOnModule(llvm::Module& m) override;
 
-  void instrument(llvm::Module& m, llvm::Function& function);
+  void instrument(llvm::Constant *countFn, llvm::Function& function);
 };
 
 
