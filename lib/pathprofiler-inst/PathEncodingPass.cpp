@@ -61,7 +61,7 @@ PathEncodingPass::runOnModule(Module &module) {
         }
     }
     calcFnId();
-    debugPrint();
+//    debugPrint();
     return false;
 }
 

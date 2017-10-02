@@ -81,7 +81,7 @@ ProfileDecodingPass::runOnModule(Module &module) {
     }
 
 
-    auto of = stdout;
+    auto of = fopen("top-five-paths.csv", "w");
     auto &ep = getAnalysis<PathEncodingPass>();
     for (auto idx:toPrint) {
         count = countVec[idx];
