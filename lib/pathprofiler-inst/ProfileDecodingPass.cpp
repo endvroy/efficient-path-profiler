@@ -63,21 +63,21 @@ ProfileDecodingPass::runOnModule(Module &module) {
 //    outs() << "\nreading file complete\n";
 
     std::vector<int> toPrint;
+    uint64_t k;
+    std::priority_queue<std::pair<double, int>> q;
+    for (int i = 0; i < countVec.size(); i++) {
+        q.push(std::pair<uint64_t, int>(countVec[i], i));
+    }
     if (countVec.size() <= 5) {
-        for (int i = 0; i < countVec.size(); i++) {
-            toPrint.push_back(i);
-        }
+        k = countVec.size();
     }
     else {
-        std::priority_queue<std::pair<double, int>> q;
-        for (int i = 0; i < countVec.size(); i++) {
-            q.push(std::pair<uint64_t, int>(countVec[i], i));
-        }
-        for (int i = 0; i < 5; i++) {
-            int idx = q.top().second;
-            toPrint.push_back(idx);
-            q.pop();
-        }
+        k = 5;
+    }
+    for (int i = 0; i < k; i++) {
+        auto idx = q.top().second;
+        q.pop();
+        toPrint.push_back(idx);
     }
 
 
