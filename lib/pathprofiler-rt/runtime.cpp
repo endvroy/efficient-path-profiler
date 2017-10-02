@@ -45,6 +45,7 @@ void PaThPrOfIlInG_print() {
         auto pathCode = x.second;
         fprintf(file, "%lu %lu %lu\n", fnId, pathCode, count);
     }
+    fclose(file);
 }
 
 }
