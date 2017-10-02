@@ -45,8 +45,8 @@ void PathEncodingPass::debugPrint() {
             printf("\"%lu\" -> \"%lu\" [label=%lu]\n",
                    bbid[pred], bbid[succ], label);
         }
+        printf("}\n");
     }
-    printf("}\n");
 }
 
 
