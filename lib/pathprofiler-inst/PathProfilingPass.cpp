@@ -48,6 +48,16 @@ PathProfilingPass::runOnModule(llvm::Module &module) {
     return true;
 }
 
+bool existEdge(BasicBlock *pred, BasicBlock *succ) {
+    for (auto it = succ_begin(pred), et = succ_end(pred); it != et; it++) {
+        auto x = *it;
+        if (succ == x) {
+            return true;
+        }
+    }
+    return false;
+}
+
 BasicBlock *safeSplitEdge(BasicBlock *pred, BasicBlock *succ) {
     auto result = SplitCriticalEdge(pred, succ);
     if (result) {
@@ -84,13 +94,17 @@ PathProfilingPass::instrument(llvm::Constant *countFn,
         auto label = p.second;
         auto pred = edge.first;
         auto succ = edge.second;
-        auto bb = safeSplitEdge(pred, succ);
+        bool check = true;
+        while (check && existEdge(pred, succ)) {
+            auto bb = safeSplitEdge(pred, succ);
+            check = !(bb == pred || bb == succ);
 
-        IRBuilder<> builder(bb->getTerminator());
-        auto delta = builder.getInt64(label);
-        auto accVal = builder.CreateLoad(acc);
-        auto result = builder.CreateAdd(accVal, delta);
-        builder.CreateStore(result, acc);
+            IRBuilder<> builder(bb->getTerminator());
+            auto delta = builder.getInt64(label);
+            auto accVal = builder.CreateLoad(acc);
+            auto result = builder.CreateAdd(accVal, delta);
+            builder.CreateStore(result, acc);
+        }
     }
 
     //save path
