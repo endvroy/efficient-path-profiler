@@ -44,7 +44,7 @@ printPath(FILE *f, std::vector<llvm::BasicBlock *> &blocks) {
 bool
 ProfileDecodingPass::runOnModule(Module &module) {
     // Implement your solution here.
-    outs() << infilename.str().c_str();
+//    outs() << infilename.str().c_str();
     auto inf = fopen(infilename.str().c_str(), "r");
     uint64_t fnId, pathCode, count;
     std::vector<uint64_t> countVec;
@@ -54,7 +54,7 @@ ProfileDecodingPass::runOnModule(Module &module) {
     size_t len = 0;
     while (getline(&line, &len, inf) != -1) {
         sscanf(line, "%lu %lu %lu", &fnId, &pathCode, &count);
-        printf("read line: %lu %lu %lu\n", fnId, pathCode, count);
+//        printf("read line: %lu %lu %lu\n", fnId, pathCode, count);
         countVec.push_back(count);
         infoVec.emplace_back(fnId, pathCode);
     }
@@ -63,19 +63,23 @@ ProfileDecodingPass::runOnModule(Module &module) {
 //    outs() << "\nreading file complete\n";
 
     std::vector<int> toPrint;
-    for (int i = 0; i < countVec.size(); i++) {
-        toPrint.push_back(i);
+    if (countVec.size() <= 5) {
+        for (int i = 0; i < countVec.size(); i++) {
+            toPrint.push_back(i);
+        }
+    }
+    else {
+        std::priority_queue<std::pair<double, int>> q;
+        for (int i = 0; i < countVec.size(); i++) {
+            q.push(std::pair<uint64_t, int>(countVec[i], i));
+        }
+        for (int i = 0; i < 5; i++) {
+            int idx = q.top().second;
+            toPrint.push_back(idx);
+            q.pop();
+        }
     }
 
-//    std::priority_queue<std::pair<double, int>> q;
-//    for (int i = 0; i < countVec.size(); i++) {
-//        q.push(std::pair<uint64_t, int>(countVec[i], i));
-//    }
-//    int k = 5; // number of indices we need
-//    for (int i = 0; i < k; ++i) {
-//        int ki = q.top().second;
-//        q.pop();
-//    }
 
     auto of = stdout;
     auto &ep = getAnalysis<PathEncodingPass>();
@@ -86,7 +90,7 @@ ProfileDecodingPass::runOnModule(Module &module) {
         pathCode = info.second;
         auto fn = ep.toInstr[fnId];
         auto seq = decode(fn, pathCode);
-        fprintf(of, "%lu", count);
+        fprintf(of, "%lu, %s", count, fn->getName().str().c_str());
         printPath(of, seq);
         fprintf(of, "\n");
     }
