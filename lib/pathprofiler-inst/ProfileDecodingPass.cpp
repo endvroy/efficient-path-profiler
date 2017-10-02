@@ -112,7 +112,7 @@ ProfileDecodingPass::decode(llvm::Function *function, uint64_t pathCode) {
         sequence.push_back(bb);
         uint64_t encoding = 0;
         next = nullptr;
-        for (auto it = succ_begin(bb), et = succ_end(bb); it != et; ++it) {
+        for (auto it = succ_begin(bb), et = succ_end(bb); it != et; it++) {
             auto succ = *it;
             auto edgeCode = allEdges[Edge(bb, succ)];
             if (edgeCode >= encoding && edgeCode <= pathCode) {

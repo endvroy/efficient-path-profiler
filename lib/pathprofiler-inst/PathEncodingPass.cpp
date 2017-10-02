@@ -101,7 +101,7 @@ PathEncodingPass::encode(llvm::Function &function) {
     while (!worklist.empty()) {
         auto bb = worklist.front();
         worklist.pop_front();
-        for (auto it = pred_begin(bb), et = pred_end(bb); it != et; ++it) {
+        for (auto it = pred_begin(bb), et = pred_end(bb); it != et; it++) {
             auto pred = *it;
             if (visited.count(pred)) {
                 //cross edge
@@ -118,7 +118,7 @@ PathEncodingPass::encode(llvm::Function &function) {
 
     for (auto &bb:function) {
         uint64_t encoding = 0;
-        for (auto it = succ_begin(&bb), et = succ_end(&bb); it != et; ++it) {
+        for (auto it = succ_begin(&bb), et = succ_end(&bb); it != et; it++) {
             auto succ = *it;
             fnEdgeMap[&function][Edge(&bb, succ)] = encoding;
             encoding += numPaths[succ];
