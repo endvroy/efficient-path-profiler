@@ -1,10 +1,10 @@
-This is a template for a project applying some simple static analysis
-together with dynamic analysis to extract information about program
-behavior. It involves instrumenting an LLVM module to produce a new program
+This project implemented the Efficient Path Profiler.
+
+The implementation is in LLVM. It involves instrumenting an LLVM module to produce a new program
 that collects path frequency information for acyclic functions.
 
-Building with CMake
-==============================================
+# Building with CMake
+
 1. Create a new directory for building.
 
         mkdir pathprofilerbuild
@@ -25,13 +25,9 @@ Building with CMake
 This produces a path profiler tool called `bin/pathprofiler` and supporting
 libraries in `lib/`.
 
-Note, building with a tool like ninja can be done by adding `-G Ninja` to
-the cmake invocation and running ninja instead of make.
+# Running
 
-Running
-==============================================
-
-First suppose that you have a program compiled to bitcode:
+Compile the program to be analyzed to bitcode:
 
     clang -g -c -emit-llvm -S ../path-profiler-template/test/c/03-multipleprofiled.c -o example.ll
 
@@ -47,8 +43,7 @@ as follows then analyzes the results:
 
     bin/pathprofiler example.ll -p path-profile-results
 
-Again, when you have successfully completed the exercise, this produces
-another file in the current directory called `top-five-paths.csv`. This file
+This produces a file in the current directory called `top-five-paths.csv`. This file
 contains the five most frequently executed paths, with each line formatted
 as follows:
 
